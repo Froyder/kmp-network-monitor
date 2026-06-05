@@ -1,23 +1,10 @@
 package io.github.froyder.networkmonitor
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-
-class FakeNetworkMonitor(
-    initialState: ConnectionState = ConnectionState.Unknown
-) : INetworkMonitor {
-    private val _state = MutableStateFlow(initialState)
-    override val connectionState: Flow<ConnectionState> = _state
-
-    fun emit(state: ConnectionState) {
-        _state.value = state
-    }
-}
 
 class NetworkMonitorTest {
 

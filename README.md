@@ -1,31 +1,120 @@
-This is a Kotlin Multiplatform project targeting Android, iOS.
+# KMP Network Monitor
 
-* [/iosApp](./iosApp/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+A lightweight Kotlin Multiplatform library for observing network connectivity on Android and iOS.
 
-* [/shared](./shared/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./shared/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./shared/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./shared/src/jvmMain/kotlin)
-    folder is the appropriate location.
+## Features
 
-### Running the apps
+- 🌐 Real-time network state monitoring
+- 📱 Supports Android and iOS
+- 🔄 Reactive API via Kotlin `Flow`
+- 🧪 Testable via `INetworkMonitor` interface
+- ⚡ Instant `Connected` reaction, debounced `Disconnected` to filter brief spikes
 
-Use the run configurations provided by the run widget in your IDE's toolbar. You can also use these commands and options:
+## Installation
 
-- Android app: `./gradlew :androidApp:assembleDebug`
-- iOS app: open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+```toml
+# gradle/libs.versions.toml
+[versions]
+kmp-network-monitor = "1.0.0"
 
-### Running tests
+[libraries]
+kmp-network-monitor = { module = "io.github.froyder:shared", version.ref = "kmp-network-monitor" }
+```
 
-Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
+```kotlin
+// build.gradle.kts
+commonMain.dependencies {
+    implementation(libs.kmp.network.monitor)
+}
+```
 
-- Android tests: `./gradlew :shared:testAndroidHostTest`
-- iOS tests: `./gradlew :shared:iosSimulatorArm64Test`
+## Setup
 
----
+### Android
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+Initialize the library once in your `Application.onCreate()` or `MainActivity.onCreate()`:
+
+```kotlin
+override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    NetworkMonitorInitializer.initialize(this)
+}
+```
+
+### iOS
+
+No setup required — the library works out of the box on iOS.
+
+## Usage
+
+### Observing state with `NetworkMonitorProvider` (recommended)
+
+`NetworkMonitorProvider` is a singleton that provides a shared, debounced `StateFlow`.
+Use this in your UI layer:
+
+```kotlin
+// In a Composable
+val connectionState by NetworkMonitorProvider.connectionState.collectAsState()
+
+when (connectionState) {
+    is ConnectionState.Connected    -> Text("Online")
+    is ConnectionState.Disconnected -> Text("Offline")
+    is ConnectionState.Unknown      -> Text("Checking...")
+}
+```
+
+### Using `NetworkMonitor` directly
+
+For manual control or ViewModel usage:
+
+```kotlin
+val monitor = NetworkMonitor()
+
+viewModelScope.launch {
+    monitor.connectionState.collect { state ->
+        when (state) {
+            is ConnectionState.Connected    -> println("Online")
+            is ConnectionState.Disconnected -> println("Offline")
+            is ConnectionState.Unknown      -> println("Checking...")
+        }
+    }
+}
+```
+
+### Testing
+
+Inject `INetworkMonitor` into your classes and use `FakeNetworkMonitor` in tests:
+
+```kotlin
+// Production
+class MyViewModel(
+    private val networkMonitor: INetworkMonitor = NetworkMonitorProvider.connectionState
+)
+
+// Test
+val fake = FakeNetworkMonitor(initialState = ConnectionState.Connected)
+fake.emit(ConnectionState.Disconnected) // simulate network loss
+```
+
+## Connection States
+
+| State | Description |
+|---|---|
+| `Connected` | Device has an active, validated internet connection |
+| `Disconnected` | Device has no internet connection |
+| `Unknown` | Connection state has not yet been determined |
+
+## Requirements
+
+| Platform | Minimum version |
+|---|---|
+| Android | API 26 (Android 8.0) |
+| iOS | iOS 12.0 |
+
+## License
+
+```
+Copyright 2026 Ilia Froyder
+
+Licensed under the Apache License, Version 2.0
+```

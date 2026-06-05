@@ -1,9 +1,6 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidMultiplatformLibrary)
-    id("maven-publish")
 }
 
 kotlin {
@@ -41,10 +38,4 @@ kotlin {
 }
 
 group = "io.github.froyder"
-version = "0.1.0-local"
-
-publishing {
-    repositories {
-        mavenLocal() // publishes to ~/.m2/repository
-    }
-}
+version = "1.0.0"
