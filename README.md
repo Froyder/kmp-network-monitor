@@ -1,5 +1,9 @@
 # KMP Network Monitor
 
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.froyder/kmp-network-monitor)](https://central.sonatype.com/artifact/io.github.froyder/kmp-network-monitor)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+[![Kotlin](https://img.shields.io/badge/kotlin-multiplatform-orange.svg)](https://kotlinlang.org/docs/multiplatform.html)
+
 A lightweight Kotlin Multiplatform library for observing network connectivity on Android and iOS.
 
 ## Features
