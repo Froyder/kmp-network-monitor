@@ -18,7 +18,7 @@ A lightweight Kotlin Multiplatform library for observing network connectivity on
 kmp-network-monitor = "1.0.0"
 
 [libraries]
-kmp-network-monitor = { module = "io.github.froyder:shared", version.ref = "kmp-network-monitor" }
+kmp-network-monitor = { module = "io.github.froyder:kmp-network-monitor", version.ref = "kmp-network-monitor" }
 ```
 
 ```kotlin
