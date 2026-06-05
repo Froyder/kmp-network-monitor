@@ -1,6 +1,10 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidMultiplatformLibrary)
+    alias(libs.plugins.vanniktech.publish)
+    id("signing")
 }
 
 kotlin {
@@ -37,5 +41,52 @@ kotlin {
     }
 }
 
+val localProps = gradleLocalProperties(rootDir, providers)
+
 group = "io.github.froyder"
 version = "1.0.0"
+
+signing {
+    val keyId = localProps.getProperty("signing.keyId") ?: ""
+    val password = localProps.getProperty("signing.password") ?: ""
+    val secretKeyFile = localProps.getProperty("signing.secretKeyFile") ?: ""
+    useInMemoryPgpKeys(keyId, file(secretKeyFile).readText(), password)
+}
+
+mavenPublishing {
+    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL)
+    signAllPublications()
+
+    coordinates(
+        groupId = "io.github.froyder",
+        artifactId = "kmp-network-monitor",
+        version = "1.0.0"
+    )
+
+    pom {
+        name = "KMP Network Monitor"
+        description = "A Kotlin Multiplatform library for observing network connectivity on Android and iOS"
+        url = "https://github.com/Froyder/kmp-network-monitor"
+
+        licenses {
+            license {
+                name = "Apache License 2.0"
+                url = "https://www.apache.org/licenses/LICENSE-2.0"
+            }
+        }
+
+        developers {
+            developer {
+                id = "froyder"
+                name = "Ilia"
+                email = "homutskih@gmail.com"
+            }
+        }
+
+        scm {
+            url = "https://github.com/Froyder/kmp-network-monitor"
+            connection = "scm:git:git://github.com/Froyder/kmp-network-monitor.git"
+            developerConnection = "scm:git:ssh://git@github.com/Froyder/kmp-network-monitor.git"
+        }
+    }
+}
