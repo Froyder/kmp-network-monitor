@@ -118,7 +118,7 @@ fake.emit(ConnectionState.Disconnected) // simulate network loss
 ## License
 
 ```
-Copyright 2026 Ilia Froyder
+Copyright 2026 Ilia Khomutskikh
 
 Licensed under the Apache License, Version 2.0
 ```

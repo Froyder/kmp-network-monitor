@@ -78,7 +78,7 @@ mavenPublishing {
         developers {
             developer {
                 id = "froyder"
-                name = "Ilia"
+                name = "Ilia Khomutskikh"
                 email = "homutskih@gmail.com"
             }
         }
