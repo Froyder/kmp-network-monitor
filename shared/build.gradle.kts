@@ -47,10 +47,19 @@ group = "io.github.froyder"
 version = "1.0.0"
 
 signing {
-    val keyId = localProps.getProperty("signing.keyId") ?: ""
-    val password = localProps.getProperty("signing.password") ?: ""
-    val secretKeyFile = localProps.getProperty("signing.secretKeyFile") ?: ""
-    useInMemoryPgpKeys(keyId, file(secretKeyFile).readText(), password)
+    val signingKeyId = localProps.getProperty("signing.keyId") ?: ""
+    val signingPassword = localProps.getProperty("signing.password") ?: ""
+    val signingSecretKeyFile = localProps.getProperty("signing.secretKeyFile") ?: ""
+
+    if (signingKeyId.isNotEmpty() && signingSecretKeyFile.isNotEmpty()) {
+        signing {
+            useInMemoryPgpKeys(
+                signingKeyId,
+                file(signingSecretKeyFile).readText(),
+                signingPassword
+            )
+        }
+    }
 }
 
 mavenPublishing {
