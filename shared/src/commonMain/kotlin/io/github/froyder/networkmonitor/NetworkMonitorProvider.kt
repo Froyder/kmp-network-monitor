@@ -2,12 +2,10 @@ package io.github.froyder.networkmonitor
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 
 object NetworkMonitorProvider {
@@ -30,26 +28,22 @@ object NetworkMonitorProvider {
  */
 fun kotlinx.coroutines.flow.Flow<ConnectionState>.debounceDisconnected(
     timeoutMillis: Long
-): kotlinx.coroutines.flow.Flow<ConnectionState> = channelFlow {
-    var pendingJob: Job? = null
+): kotlinx.coroutines.flow.Flow<ConnectionState> = flow {
+    var pendingDisconnected = false
     collect { state ->
         when (state) {
             is ConnectionState.Connected -> {
-                pendingJob?.cancel()
-                pendingJob = null
-                send(state)
+                pendingDisconnected = false
+                emit(state)
             }
             is ConnectionState.Disconnected -> {
-                pendingJob?.cancel()
-                pendingJob = launch {
-                    delay(timeoutMillis)
-                    send(state)
-                }
+                pendingDisconnected = true
+                delay(timeoutMillis)
+                if (pendingDisconnected) emit(state)
             }
             is ConnectionState.Unknown -> {
-                pendingJob?.cancel()
-                pendingJob = null
-                send(state)
+                pendingDisconnected = false
+                emit(state)
             }
         }
     }

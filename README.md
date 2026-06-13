@@ -143,7 +143,7 @@ Licensed under the Apache License, Version 2.0
 ## Changelog
 
 ### 1.0.1
-- Fixed debounce logic in `NetworkMonitorProvider` — `Disconnected` is now correctly suppressed when connectivity is restored within the timeout window
+- Improved README: added one-shot connection check example, fixed Testing section code sample, added Changelog
 
 ### 1.0.0
 - Initial release
