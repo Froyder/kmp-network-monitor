@@ -19,7 +19,7 @@ A lightweight Kotlin Multiplatform library for observing network connectivity on
 ```toml
 # gradle/libs.versions.toml
 [versions]
-kmp-network-monitor = "1.0.0"
+kmp-network-monitor = "1.0.1"
 
 [libraries]
 kmp-network-monitor = { module = "io.github.froyder:kmp-network-monitor", version.ref = "kmp-network-monitor" }
@@ -67,19 +67,37 @@ when (connectionState) {
 }
 ```
 
-### Using `NetworkMonitor` directly
+### One-shot connection check
 
-For manual control or ViewModel usage:
+For cases where you need to verify connectivity before an operation:
 
 ```kotlin
-val monitor = NetworkMonitor()
+private suspend fun checkConnection() {
+    val state = NetworkMonitorProvider.connectionState.first { it !is ConnectionState.Unknown }
+    if (state is ConnectionState.Disconnected) {
+        throw Exception("No internet connection")
+    }
+}
+```
 
-viewModelScope.launch {
-    monitor.connectionState.collect { state ->
-        when (state) {
-            is ConnectionState.Connected    -> println("Online")
-            is ConnectionState.Disconnected -> println("Offline")
-            is ConnectionState.Unknown      -> println("Checking...")
+### Using `NetworkMonitor` directly
+
+For manual control or ViewModel usage with dependency injection:
+
+```kotlin
+class MyViewModel(
+    private val networkMonitor: INetworkMonitor = NetworkMonitor()
+) : ViewModel() {
+
+    init {
+        viewModelScope.launch {
+            networkMonitor.connectionState.collect { state ->
+                when (state) {
+                    is ConnectionState.Connected    -> println("Online")
+                    is ConnectionState.Disconnected -> println("Offline")
+                    is ConnectionState.Unknown      -> println("Checking...")
+                }
+            }
         }
     }
 }
@@ -92,7 +110,7 @@ Inject `INetworkMonitor` into your classes and use `FakeNetworkMonitor` in tests
 ```kotlin
 // Production
 class MyViewModel(
-    private val networkMonitor: INetworkMonitor = NetworkMonitorProvider.connectionState
+    private val networkMonitor: INetworkMonitor = NetworkMonitor()
 )
 
 // Test
@@ -119,6 +137,13 @@ fake.emit(ConnectionState.Disconnected) // simulate network loss
 
 ```
 Copyright 2026 Ilia Khomutskikh
-
 Licensed under the Apache License, Version 2.0
 ```
+
+## Changelog
+
+### 1.0.1
+- Fixed debounce logic in `NetworkMonitorProvider` — `Disconnected` is now correctly suppressed when connectivity is restored within the timeout window
+
+### 1.0.0
+- Initial release

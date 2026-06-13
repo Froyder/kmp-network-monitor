@@ -44,7 +44,7 @@ kotlin {
 val localProps = gradleLocalProperties(rootDir, providers)
 
 group = "io.github.froyder"
-version = "1.0.0"
+version = "1.0.1"
 
 signing {
     val signingKeyId = localProps.getProperty("signing.keyId") ?: ""
@@ -69,7 +69,7 @@ mavenPublishing {
     coordinates(
         groupId = "io.github.froyder",
         artifactId = "kmp-network-monitor",
-        version = "1.0.0"
+        version = "1.0.1"
     )
 
     pom {
