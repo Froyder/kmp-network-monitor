@@ -26,11 +26,24 @@ kmp-network-monitor = { module = "io.github.froyder:kmp-network-monitor", versio
 ```
 
 ```kotlin
-// build.gradle.kts
-commonMain.dependencies {
+// shared/build.gradle.kts — for KMP modules
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(libs.kmp.network.monitor)
+        }
+    }
+}
+```
+
+```kotlin
+// androidApp/build.gradle.kts — for Android app modules
+dependencies {
     implementation(libs.kmp.network.monitor)
 }
 ```
+
+> 💡 The Android app module needs the dependency declared separately so `NetworkMonitorInitializer` is accessible in `MainActivity`.
 
 ## Setup
 
